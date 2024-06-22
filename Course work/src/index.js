@@ -3,15 +3,15 @@ import { speedFloydWarshall, speedParallelFloydWarshall, speedUp } from "./speed
 const graphSizes = [1000, 2000, 3000];
 const processors = [4, 16, 25, 64, 100];
 
-const repetitions = 3;
+const iteration = 20;
 const numProcessors = 16;
 
 
-speedFloydWarshall(graphSizes);
+// speedFloydWarshall(graphSizes);
 
-await speedParallelFloydWarshall(graphSizes, processors);
+// await speedParallelFloydWarshall(graphSizes, processors);
 
-speedUp(graphSizes, numProcessors, repetitions);
+// speedUp(graphSizes, numProcessors, iteration);
 
 
 

@@ -21,7 +21,7 @@ const measureExecutionTime = (callback) => {
 };
 
 
-export const generateRandomGraph = (numNodes, density = 0.5, maxWeight = 10) => {
+export const generateRandomGraph = (numNodes, density = 0.7, maxWeight = 10) => {
     const edges = [];
     for (let i = 0; i < numNodes; i++) {
         for (let j = i + 1; j < numNodes; j++) {
@@ -66,7 +66,9 @@ export const speedParallelFloydWarshall = async (graphSizes, processors) => {
     }
 };
 
-export const speedUp = async (graphSizes, numProcessors, repetitions) => {
+export const speedUp = async (graphSizes, numProcessors, iterations) => {
+
+    let result = [];
 
     for (const numNodes of graphSizes) {
         let sequentialExecutionTimes = [];
@@ -74,15 +76,15 @@ export const speedUp = async (graphSizes, numProcessors, repetitions) => {
 
         const graph = generateRandomGraph(numNodes, 0.3);
 
-        for (let i = 0; i < repetitions; i++) {
-            console.log(`Sequential Floyd-Warshall with ${numNodes} nodes (Repetition ${i + 1})`);
+        for (let i = 0; i < iterations; i++) {
+            console.log(`Sequential Floyd-Warshall with ${numNodes} nodes (Iteration ${i + 1})`);
             const sequentialExecutionTime = measureExecutionTime(() => {
                 floydWarshall(graph);
             });
             sequentialExecutionTimes.push(sequentialExecutionTime);
             console.log(`Execution time with ${numNodes} nodes: ${sequentialExecutionTime.toFixed(2)} ms\n`);
 
-            console.log(`Parallel Floyd-Warshall with ${numNodes} nodes and ${numProcessors} processors (Repetition ${i + 1})`);
+            console.log(`Parallel Floyd-Warshall with ${numNodes} nodes and ${numProcessors} processors (Iteration ${i + 1})`);
             const executionTime = await measureExecutionTimeP(async () => {
                 await parallelFloydWarshall(graph, numProcessors);
             });
@@ -91,12 +93,15 @@ export const speedUp = async (graphSizes, numProcessors, repetitions) => {
         }
 
 
-        const avgSequentialExecutionTime = sequentialExecutionTimes.reduce((a, b) => a + b, 0) / repetitions;
+        const avgSequentialExecutionTime = sequentialExecutionTimes.reduce((a, b) => a + b, 0) / iterations;
         console.log(`Average Sequential Execution Time: ${avgSequentialExecutionTime}`)
-        const avgParallelExecutionTime = parallelExecutionTimes.reduce((a, b) => a + b, 0) / repetitions;
+        const avgParallelExecutionTime = parallelExecutionTimes.reduce((a, b) => a + b, 0) / iterations;
         console.log(`Average Parallel Execution Time: ${avgParallelExecutionTime}`)
-
         const speedUp = avgSequentialExecutionTime / avgParallelExecutionTime;
         console.log(`Average Speed-up with ${numNodes} nodes: ${speedUp.toFixed(2)}\n`);
+        result.push({numNodes, avgSequentialExecutionTime, avgParallelExecutionTime, speedUp})
     }
+
+    console.log(result);
 }
+
